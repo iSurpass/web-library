@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>xxx电子图书馆系统 - 首页</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <style>
+        .book-detail {
+            width: 80%;
+            margin: 0 auto;
+        }
+        
+        .book-detail > div {
+            padding: 10px 0;
+            position: relative;
+        }
+        
+        .book-detail > div >div:first-child {
+            width: 100px;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+        
+        .book-detail > div > div:nth-child(2) {
+            margin-left: 100px;
+            line-height: 2rem;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- 导航栏 -->
+        <nav style="height:60px;line-height:60px;overflow:hidden;border-bottom:1px solid #95B8E7;">
+            <div style="float:left;width:300px;text-align:center;height:60px;line-height:60px;">
+                <p style="font-size:2rem;font-weight:bolder;">XXX电子图书馆系统</p>
+            </div>
+
+            <div style="float:right;height:60px;line-height:60px;text-align:right;">
+                <span class="hide" id="logged">
+                        欢迎你：<span style="font-weight:bold;" id="username"></span>,
+                <a href="reader.html" target="_blank">个人中心</a>&nbsp;&nbsp;|
+                <a href="javascript:logout();">注销</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+                </span>
+                <span id="not-logged">
+                        <a href="javascript:open_login_dialog();">登录</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+                        <a href="javascript:open_regist_dialog();">注册</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+                    </span>
+                <a href="forum.html" target="_blank">论坛</a>
+            </div>
+        </nav>
+
+        <!-- 内容区 -->
+        <div>
+            <!-- 搜索框 -->
+            <div style="width:80%;margin: 10px auto;">
+                <div style="position:absolute;width:100px;height:36px;line-height:36px;">
+                    <p style="font-size:1.5rem;font-weight:bold;">在馆图书搜索</p>
+                </div>
+                <div style="margin-left:100px;">
+                    <input type="text" class="form-control" placeholder="输入书名、作者" style="width:300px;display:inline-block;" id="keyword">
+                    <div class="checkbox" style="display:inline-block;margin-left:10px;">
+                        <label>
+                            <input type="checkbox" id="only-new">只搜索新到图书
+                        </label>
+                    </div>
+                    <a class="btn btn-success" style="margin-left:20px;width:120px;font-weight:bold;" href="javascript:do_search_book();"><span class="glyphicon glyphicon-search"></span> 搜 索</a>
+                </div>
+            </div>
+
+            <div style="width:100%;margin:20px auto 0;border-top: 1px solid #95B8E7;">
+                <div id="search-result" class="hide">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width:10px;">#</th>
+                                <th>书名</th>
+                                <th style="width:160px;">ISBN</th>
+                                <th>作者</th>
+                                <th style="width:130px;">出版社</th>
+                                <th style="width:90px;">出版时间</th>
+                                <th style="width:100px;">操作</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <nav class="hide">
+                        <ul class="pager">
+                            <li><a href="javascript:search_prev();">前一页</a></li>&nbsp; 当前第 <strong id="page"></strong> 页&nbsp;
+                            <li><a href="javascript:search_next();">后一页</a></li>
+                        </ul>
+                    </nav>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 登录对话框 -->
+    <div class="modal fade" tabindex="-1" id="login-dialog">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">读者登录</h4>
+                </div>
+                <div class="modal-body" style="padding-bottom:0;">
+                    <form>
+                        <div class="form-group">
+                            <label for="ld-username">用户名</label>
+                            <input type="text" class="form-control" id="ld-username" placeholder="输入用户名">
+                        </div>
+                        <div class="form-group">
+                            <label for="ld-passwd">密码</label>
+                            <input type="password" class="form-control" id="ld-passwd" placeholder="输入密码">
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox"> 记住我
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="login();">登录</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+
+    <!-- 注册对话框 -->
+    <div class="modal fade" tabindex="-1" id="regist-dialog">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">读者注册</h4>
+                </div>
+                <div class="modal-body" style="padding-bottom:0;">
+                    <form>
+                        <div class="form-group">
+                            <label for="rd-username">用户名</label>
+                            <input type="text" class="form-control" id="rd-username" placeholder="输入用户名">
+                        </div>
+                        <div class="form-group">
+                            <label for="rd-passwd">密码</label>
+                            <input type="password" class="form-control" id="rd-passwd" placeholder="输入密码">
+                        </div>
+                        <div class="form-group">
+                            <label for="rd-passwd1">密码 again</label>
+                            <input type="password" class="form-control" id="rd-passwd1" placeholder="再次输入密码">
+                        </div>
+                        <div class="form-group">
+                            <label for="rd-name">姓名</label>
+                            <input type="text" class="form-control" id="rd-name" placeholder="姓名">
+                        </div>
+                        <div class="form-group">
+                            <label for="rd-cellphone">手机号</label>
+                            <input type="text" class="form-control" id="rd-cellphone" placeholder="输入手机号">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="regist();">注册</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+
+    <!-- 书信息详情 -->
+    <div class="modal fade" tabindex="-1" id="book-detail-dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="padding:10px 15px;">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body book-detail">
+                    <div>
+                        <div>书名</div>
+                        <div id="bdd-name"></div>
+                    </div>
+                    <div>
+                        <div>ISBN</div>
+                        <div id="bdd-isbn"></div>
+                    </div>
+                    <div>
+                        <div>作者</div>
+                        <div id="bdd-author"></div>
+                    </div>
+                    <div>
+                        <div>出版社</div>
+                        <div id="bdd-publisher"></div>
+                    </div>
+                    <div>
+                        <div>出版时间</div>
+                        <div id="bdd-pubdate"></div>
+                    </div>
+                    <div>
+                        <div>内容简介</div>
+                        <div id="bdd-abstract"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.md5.js"></script>
+    <script>
+        $(function() {
+            // 默认加载全部的书
+            send_search_post('if/list-search-book.php', {}, 1, 10, fill_data_table);
+
+            // 查看是否登录
+            $.ajax({
+                url: 'if/is-logged.php',
+                type: 'get',
+                dataType: 'json',
+                success: function(data) {
+                    if (data.logged) {
+                        $('#not-logged').addClass('hide');
+                        $('#logged').removeClass('hide');
+                        $('#username').text(data.username);
+                    }
+                }
+            });
+        });
+
+        function do_search_book(page) {
+            // 分析参数
+            var keyword = $('#keyword').val().trim();
+            var only_new = $('#only-new').is(':checked') ? 'y' : 'n';
+
+            page = page == undefined ? $('#page').text() : page;
+            send_search_post('if/list-search-book.php', {
+                keyword: keyword,
+                only_new: only_new
+            }, page, 10, fill_data_table);
+        }
+
+        function send_search_post(url, param, page, rows, callback) {
+            param.page = page;
+            param.rows = rows;
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: param,
+                dataType: 'json',
+                success: function(data) {
+                    callback(data, $('#search-result'));
+                }
+            });
+        }
+
+        function fill_data_table(data, tb) {
+            tb.find('tbody').empty();
+            $('#page').text(data.page);
+            $(data.rows).each(function(index, obj) {
+                var tr = $('<tr></tr>');
+                tr.append('<td class="hide" id="' + obj.id + '"></td>')
+                    .append('<td>' + (index + 1) + '</td>')
+                    .append('<td><a href="#">' + obj.name + '</a></td>')
+                    .append('<td>' + obj.isbn + '</td>')
+                    .append('<td>' + obj.author + '</td>')
+                    .append('<td>' + obj.publisher + '</td>')
+                    .append('<td>' + obj.pubdate + '</td>')
+                    .append('<td><a class="btn btn-warning btn-xs">借书</a>&nbsp;<a class="btn btn-primary btn-xs ' + (obj.url == '' ? 'hide' : '') + ' " href="' + obj.url + '">下载</a></td>');
+                tr.find('td:nth-child(3) a').on('click', function() {
+                    open_book_detail_dialog(obj.id);
+                });
+                tr.find('td:last-child a:first-child').on('click', function() {
+                    borrow_book(obj.id);
+                });
+                tr.appendTo($('#search-result tbody'));
+            });
+
+            var pg = tb.find('nav');
+            if (data.total > 10) {
+                pg.removeClass('hide');
+            }
+
+            var prev = pg.find('li:first-child');
+            if (data.page == 1) {
+                // 首页，前一页灰掉
+                prev.addClass('disabled').find('a').attr('href', 'javascript:void(0)');
+            } else {
+                prev.removeClass('disabled').find('a').attr('href', 'javascript:search_prev()');
+            }
+            var next = pg.find('li:nth-child(3)');
+            if (data.rows.length < 10) {
+                next.addClass('disabled').find('a').attr('href', 'javascript:void(0)');
+            } else {
+                next.removeClass('disabled').find('a').attr('href', 'javascript:search_next()');
+            }
+
+            tb.removeClass('hide');
+        }
+
+        // 前一页
+        function search_prev() {
+            var page = $('#page').text();
+            do_search_book(Number(page) - 1);
+        }
+
+        // 后一页
+        function search_next() {
+            var page = $('#page').text();
+            do_search_book(Number(page) + 1);
+        }
+
+        // 打开书详情对话框
+        function open_book_detail_dialog(id) {
+            var dialog = $('#book-detail-dialog');
+            // 读取书详细信息
+            $.ajax({
+                url: 'if/get-book-detail.php',
+                type: 'get',
+                data: {
+                    id: id
+                },
+                dataType: 'json',
+                success: function(data) {
+                    dialog.find('#bdd-name').text(data.name);
+                    dialog.find('#bdd-isbn').text(data.isbn);
+                    dialog.find('#bdd-author').text(data.author);
+                    dialog.find('#bdd-publisher').text(data.publisher);
+                    dialog.find('#bdd-pubdate').text(data.pubdate);
+                    dialog.find('#bdd-abstract').text(data.abstract);
+
+                    dialog.modal('show');
+                }
+            });
+
+        }
+
+        // 借阅
+        function borrow_book(id) {
+            $.ajax({
+                url: 'if/is-logged.php',
+                type: 'get',
+                dataType: 'json',
+                success: function(data) {
+                    if (!data.logged) {
+                        alert('借书请先登录');
+                        return;
+                    }
+                    if (confirm('是否借阅此书？')) {
+                        $.ajax({
+                            url: 'if/borrow-book.php',
+                            type: 'post',
+                            data: {
+                                id: id
+                            },
+                            dataType: 'json',
+                            success: function(data) {
+                                alert(data.status);
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        // 打开登录对话框
+        function open_login_dialog() {
+            var dialog = $('#login-dialog');
+            dialog.find('input').val('');
+            dialog.modal('show');
+        }
+
+        // 登录
+        function login() {
+            var dialog = $('#login-dialog');
+            var username = dialog.find('#ld-username').val().trim();
+            if (username == '') {
+                alert('用户名为空');
+                return;
+            }
+
+            var passwd = dialog.find('#ld-passwd').val();
+            if (passwd == '') {
+                alert('密码为空');
+                return;
+            }
+
+            $.ajax({
+                url: 'if/login.php',
+                type: 'post',
+                data: {
+                    username: username,
+                    passwd: $.md5(passwd)
+                },
+                dataType: 'json',
+                success: function(data) {
+                    alert(data.status);
+                    if (data.status == '登录成功') {
+                        $('#not-logged').addClass('hide');
+                        $('#logged').removeClass('hide');
+                        $('#username').text(data.username);
+                        dialog.modal('hide');
+                    }
+                }
+            });
+        }
+
+        // 注销
+        function logout() {
+            if (confirm('是否注销？')) {
+                $.ajax({
+                    url: 'if/logout.php',
+                    type: 'post',
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data.status == '注销成功') {
+                            $('#logged').addClass('hide');
+                            $('#not-logged').removeClass('hide');
+                            $('#username').text('data.username');
+                        }
+                        alert(data.status);
+                    }
+                });
+            }
+        }
+
+        // 打开注册对话框
+        function open_regist_dialog() {
+            var dialog = $('#regist-dialog');
+            dialog.find('input').val('');
+            dialog.modal('show');
+        }
+
+        // 注册
+        function regist() {
+            var dialog = $('#regist-dialog');
+            var username = dialog.find('#rd-username').val().trim();
+            if (username == '') {
+                alert('用户名为空');
+                return;
+            }
+
+            var passwd = dialog.find('#rd-passwd').val();
+            if (passwd == '') {
+                alert('密码为空');
+                return;
+            }
+
+            var passwd1 = dialog.find('#rd-passwd1').val();
+            if (passwd1 != passwd) {
+                alert('两次密码不符');
+                return;
+            }
+
+            var name = dialog.find('#rd-name').val().trim();
+            var cellphone = dialog.find('#rd-cellphone').val().trim();
+
+            $.ajax({
+                url: 'if/regist.php',
+                type: 'post',
+                data: {
+                    username: username,
+                    passwd: $.md5(passwd),
+                    name: name,
+                    cellphone: cellphone
+                },
+                dataType: 'json',
+                success: function(data) {
+                    alert(data.status);
+                }
+            });
+        }
+
+    </script>
+</body>
+
+</html>

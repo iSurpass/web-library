@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>xxx电子图书馆系统 - 读者</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+    <style>
+        .book-detail {
+            width: 80%;
+            margin: 0 auto;
+        }
+        
+        .book-detail > div {
+            padding: 10px 0;
+            position: relative;
+        }
+        
+        .book-detail > div >div:first-child {
+            width: 100px;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+        
+        .book-detail > div > div:nth-child(2) {
+            margin-left: 100px;
+            line-height: 2rem;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- 导航栏 -->
+        <nav style="height:60px;line-height:60px;overflow:hidden;border-bottom:1px solid #95B8E7;">
+            <div style="float:left;width:300px;text-align:center;height:60px;line-height:60px;">
+                <p style="font-size:2rem;font-weight:bolder;">XXX电子图书馆系统</p>
+            </div>
+
+            <div style="float:right;height:60px;line-height:60px;text-align:right;">
+                欢迎你：<span style="font-weight:bold;" id="name"></span>&nbsp;&nbsp;|&nbsp;&nbsp;
+                <a href="javascript:open_setting_dialog();">个人设置</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+                <a href="javascript:logout();">注销</a>
+            </div>
+        </nav>
+
+        <div id="content">
+            <div style="position:absolute;width:150px;height:400px;border-left:1px solid #95B8E7;border-bottom:1px solid #95B8E7;border-right:1px solid #95B8E7;">
+                <p style="font-weight:bold;text-align:center;padding:10px 0 0;">功能列表</p>
+                <div class="list-group">
+                    <a href="#" class="list-group-item">在借图书</a>
+                    <!--                    <a class="list-group-item disabled">历史借阅</a>-->
+                </div>
+            </div>
+            <div style="margin-left:150px;padding:10px;">
+                <div id="content-borrowing" class="hide">
+                    <label>在借图书</label>
+                    <table class="table table-hover table-striped" style="border-top:2px solid lightgrey;" id="borrowing-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>书名</th>
+                                <th>ISBN</th>
+                                <!--                                <th>作者</th>-->
+                                <th>出版社</th>
+                                <th>借阅日期</th>
+                                <th>应还日期</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 书信息详情 -->
+    <div class="modal fade" tabindex="-1" id="book-detail-dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="padding:10px 15px;">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body book-detail">
+                    <div>
+                        <div>书名</div>
+                        <div id="bdd-name"></div>
+                    </div>
+                    <div>
+                        <div>ISBN</div>
+                        <div id="bdd-isbn"></div>
+                    </div>
+                    <div>
+                        <div>作者</div>
+                        <div id="bdd-author"></div>
+                    </div>
+                    <div>
+                        <div>出版社</div>
+                        <div id="bdd-publisher"></div>
+                    </div>
+                    <div>
+                        <div>出版时间</div>
+                        <div id="bdd-pubdate"></div>
+                    </div>
+                    <div>
+                        <div>内容简介</div>
+                        <div id="bdd-abstract"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 个人设置对话框 -->
+    <div class="modal fade" tabindex="-1" id="setting-dialog">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">个人设置</h4>
+                </div>
+                <div class="modal-body" style="padding-bottom:0;">
+                    <form>
+                        <div class="form-group">
+                            <label for="sd-username">用户名</label>
+                            <input type="text" class="form-control" id="sd-username" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="sd-passwd-old">旧密码</label>
+                            <input type="password" class="form-control" id="sd-passwd-old">
+                        </div>
+                        <div class="form-group">
+                            <label for="sd-passwd-new">新密码</label>
+                            <input type="password" class="form-control" id="sd-passwd-new">
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                            <label for="sd-name">姓名</label>
+                            <input type="text" class="form-control" id="sd-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="sd-cellphone">手机号</label>
+                            <input type="text" class="form-control" id="sd-cellphone">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="modify();">修改</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.md5.js"></script>
+    <script>
+        $(function() {
+            $.ajax({
+                url: 'if/is-logged.php',
+                type: 'get',
+                dataType: 'json',
+                success: function(data) {
+                    if (data.logged == false) {
+                        alert('你未登录');
+                        window.location.href = 'index.html';
+                    } else {
+                        $('#name').text(data.username);
+                    }
+                }
+            });
+        });
+
+    </script>
+    <script>
+        $(function() {
+            $('#content .list-group-item').on('click', function() {
+                var item = $(this);
+                item.addClass('active').siblings().removeClass('active');
+                if (item.text() == '在借图书') {
+                    $('#content-borrowing').removeClass('hide').siblings().addClass('hide');
+                }
+            });
+
+            $('#content .list-group > .list-group-item:first-child').trigger('click');
+
+            flush_table();
+        });
+
+        // 刷新表格数据
+        function flush_table() {
+            $.ajax({
+                url: 'if/list-borrowing-book.php',
+                type: 'get',
+                dataType: 'json',
+                success: function(data) {
+                    var tb = $('#borrowing-table').find('tbody');
+                    tb.empty();
+                    $(data).each(function(index, obj) {
+                        var tr = $('<tr></tr>');
+                        tr.append('<td class="hide">' + obj.id + '</td>')
+                            .append('<td>' + (index + 1) + '</td>')
+                            .append('<td><a href="#">' + obj.name + '</a></td>')
+                            .append('<td>' + obj.isbn + '</td>')
+                            //                            .append('<td>' + obj.author + '</td>')
+                            .append('<td>' + obj.publisher + '</td>')
+                            .append('<td>' + obj.borrow_date + '</td>')
+                            .append('<td>' + obj.return_date + '</td>')
+                            .append('<td><a class="btn btn-warning btn-xs">续借</a></td>');
+                        tr.find('td:nth-child(3) a').on('click', function() {
+                            open_book_detail_dialog(obj.book_id);
+                        });
+                        tr.find('td:last-child a').on('click', function() {
+                            reborrow_book(obj.id);
+                        });
+                        tr.appendTo(tb);
+                    });
+
+                }
+            });
+        }
+
+    </script>
+    <script>
+        // 打开书详情对话框
+        function open_book_detail_dialog(id) {
+            var dialog = $('#book-detail-dialog');
+            // 读取书详细信息
+            $.ajax({
+                url: 'if/get-book-detail.php',
+                type: 'get',
+                data: {
+                    id: id
+                },
+                dataType: 'json',
+                success: function(data) {
+                    dialog.find('#bdd-name').text(data.name);
+                    dialog.find('#bdd-isbn').text(data.isbn);
+                    dialog.find('#bdd-author').text(data.author);
+                    dialog.find('#bdd-publisher').text(data.publisher);
+                    dialog.find('#bdd-pubdate').text(data.pubdate);
+                    dialog.find('#bdd-abstract').text(data.abstract);
+
+                    dialog.modal('show');
+                }
+            });
+
+        }
+
+        // 续借
+        function reborrow_book(id) {
+            if (confirm('是否续期该图书？')) {
+                $.ajax({
+                    url: 'if/reborrow-book.php',
+                    type: 'post',
+                    data: {
+                        id: id
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data.status == '续借成功') {
+                            flush_table();
+                        }
+                        alert(data.status);
+                    }
+                });
+            }
+        }
+
+        // 注销
+        function logout() {
+            if (confirm('是否注销？')) {
+                $.ajax({
+                    url: 'if/logout.php',
+                    type: 'post',
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data.status == '注销成功') {
+                            window.location.href = "index.html";
+                        }
+                        alert(data.status);
+                    }
+                });
+            }
+        }
+
+        // 打开个人设置对话框
+        function open_setting_dialog() {
+            var dialog = $('#setting-dialog');
+            dialog.find('.modal-body input').val('');
+            // 获得个人信息
+            $.ajax({
+                url: 'if/reader-info.php',
+                dataType: 'json',
+                success: function(data) {
+                    dialog.find('input#sd-username').val(data.username);
+                    dialog.find('input#sd-name').val(data.name);
+                    dialog.find('input#sd-cellphone').val(data.cellphone);
+                    dialog.modal('show');
+                }
+            });
+        }
+
+        // 修改个人设置
+        function modify() {
+            var dg = $('#setting-dialog .modal-body');
+
+            // 判断是否需要修改密码
+            var passwd1 = dg.find('input#sd-passwd-old').val();
+            var passwd2 = dg.find('input#sd-passwd-new').val();
+            var modify_passwd = false;
+            if (passwd1 != '') {
+                modify_passwd = true;
+                if (passwd1 == passwd2) {
+                    alert('新旧密码相同');
+                    return;
+                }
+                if (passwd2 == '') {
+                    alert('新密码为空');
+                    return;
+                }
+            }
+
+            var name = dg.find('input#sd-name').val().trim();
+            if (name == '') {
+                alert('姓名为空');
+                return;
+            }
+            var cellphone = dg.find('input#sd-cellphone').val().trim();
+            if (cellphone == '') {
+                alert('手机号为空');
+                return;
+            }
+
+            if (confirm('是否修改资料？')) {
+                $.ajax({
+                    url: 'if/modify.php',
+                    type: 'post',
+                    data: {
+                        modify_passwd: modify_passwd,
+                        old_passwd: $.md5(passwd1),
+                        new_passwd: $.md5(passwd2),
+                        name: name,
+                        cellphone: cellphone
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        alert(data.status);
+                    }
+                });
+            }
+        }
+
+    </script>
+</body>
+
+</html>

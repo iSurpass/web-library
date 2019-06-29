@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>xxx电子图书馆系统 - 论坛</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <style>
+        #content-table tbody tr td:nth-child(2) {
+            text-align: center;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- 导航栏 -->
+        <nav style="height:60px;line-height:60px;overflow:hidden;border-bottom:1px solid #95B8E7;">
+            <div style="float:left;width:300px;text-align:center;height:60px;line-height:60px;">
+                <p style="font-size:2rem;font-weight:bolder;">XXX电子图书馆系统 - 读者论坛</p>
+            </div>
+
+            <div style="float:right;height:60px;line-height:60px;text-align:right;padding-right:20px;">
+                <a href="javascript:open_login_dialog();" id="not-logged">登录</a>
+                <span class="hide" id="logged">欢迎你：<span style="font-weight:bold;" id="reader-name"></span>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#" onclick="logout();">注销</a></span>
+            </div>
+        </nav>
+
+        <!-- 帖子区 -->
+        <div id="content">
+            <table class="table table-striped table-hover table-condensed" id="content-table">
+                <thead>
+                    <tr>
+                        <th width="50" style="text-align:center;">#</th>
+                        <th>标题</th>
+                        <th width="100">作者</th>
+                        <th width="200">发帖时间</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                </tbody>
+            </table>
+
+            <div style="position:relative;">
+                <ul class="pager hide">
+                    <li><a href="javascript:search_prev();">前一页</a></li>&nbsp; 当前第 <strong id="page"></strong> 页&nbsp;
+                    <li><a href="javascript:search_next();">后一页</a></li>
+                </ul>
+                <a class="btn btn-primary" style="position:absolute;top:0;right:0;" onclick="open_send_bbs_dialog();">发帖</a>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- 登录对话框 -->
+    <div class="modal fade" tabindex="-1" id="login-dialog">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">读者登录</h4>
+                </div>
+                <div class="modal-body" style="padding-bottom:0;">
+                    <form>
+                        <div class="form-group">
+                            <label for="ld-username">用户名</label>
+                            <input type="text" class="form-control" id="ld-username" placeholder="输入用户名">
+                        </div>
+                        <div class="form-group">
+                            <label for="ld-passwd">密码</label>
+                            <input type="password" class="form-control" id="ld-passwd" placeholder="输入密码">
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox"> 记住我
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="login();">登录</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+
+    <!-- 发帖对话框 -->
+    <div class="modal fade" tabindex="-1" id="send-bbs-dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="padding:10px 15px;">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">发新帖</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="sbd-title">标题</label>
+                            <input type="text" class="form-control" id="sbd-title">
+                        </div>
+                        <div class="form-group">
+                            <label for="sbd-content">内容</label>
+                            <textarea class="form-control" rows="10" id="sbd-content"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="send_bbs();">发帖</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.md5.js"></script>
+    <script>
+        $(function() {
+            // 登录信息提取
+            $.ajax({
+                url: 'if/is-logged.php',
+                type: 'get',
+                dataType: 'json',
+                success: function(data) {
+                    if (data.logged) {
+                        $('#not-logged').addClass('hide');
+                        $('#logged').removeClass('hide');
+                        $('#reader-name').text(data.username);
+                    }
+                }
+            });
+
+            load_forum_bbs();
+        });
+
+    </script>
+    <script>
+        // 打开登录对话框
+        function open_login_dialog() {
+            var dialog = $('#login-dialog');
+            dialog.find('input').val('');
+            dialog.modal('show');
+        }
+
+        // 登录
+        function login() {
+            var dialog = $('#login-dialog');
+            var username = dialog.find('#ld-username').val().trim();
+            if (username == '') {
+                alert('用户名为空');
+                return;
+            }
+
+            var passwd = dialog.find('#ld-passwd').val();
+            if (passwd == '') {
+                alert('密码为空');
+                return;
+            }
+
+            $.ajax({
+                url: 'if/login.php',
+                type: 'post',
+                data: {
+                    username: username,
+                    passwd: $.md5(passwd)
+                },
+                dataType: 'json',
+                success: function(data) {
+                    alert(data.status);
+                    if (data.status == '登录成功') {
+                        // 替换用户名
+                        $.ajax({
+                            url: 'if/is-logged.php',
+                            type: 'get',
+                            dataType: 'json',
+                            success: function(data) {
+                                dialog.modal('hide');
+                                $('#reader-name').text(data.username).parent().removeClass('hide').siblings().addClass('hide');
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        // 注销
+        function logout() {
+            if (confirm('是否注销？')) {
+                $.ajax({
+                    url: 'if/logout.php',
+                    type: 'post',
+                    dataType: 'json',
+                    success: function(data) {
+                        alert(data.status);
+                        if (data.status == '注销成功') {
+                            $('#reader-name').parent().addClass('hide').siblings().removeClass('hide');
+                        }
+                    }
+                });
+            }
+        }
+
+        // 加载帖子列表
+        function load_forum_bbs(page) {
+            page = page == undefined ? 1 : page;
+            page = page < 0 ? 0 : page;
+            $.ajax({
+                url: 'if/list-forum-bbs.php',
+                type: 'get',
+                data: {
+                    page: page,
+                    rows: 10
+                },
+                dataType: 'json',
+                success: function(data) {
+                    var tb = $('#content-table tbody');
+                    $('#page').text(data.page);
+                    tb.empty();
+                    $(data.rows).each(function(index, obj) {
+                        var tr = $('<tr></tr>');
+                        tr.append('<td class="hide">' + obj.id + '</td>')
+                            .append('<td>' + (index + 1) + '</td>')
+                            .append('<td><a target="_blank" href="forum-bbs.html?id=' + obj.id + '">' + obj.title + '</a></td>')
+                            .append('<td>' + obj.author + '</td>')
+                            .append('<td>' + obj.time + '</td>');
+                        tr.appendTo(tb);
+                    });
+
+                    var pg = $('ul.pager');
+                    var prev = pg.find('li:first-child');
+                    if (data.page == 1) {
+                        prev.addClass('disabled').find('a').attr('href', 'javascript:void(0)');
+                    } else {
+                        prev.removeClass('disabled').find('a').attr('href', 'javascript:search_prev()');
+                    }
+
+                    var next = pg.find('li:nth-child(3)');
+                    if (data.rows.length < 10) {
+                        next.addClass('disabled').find('a').attr('href', 'javascript:void(0)');
+                    } else {
+                        next.removeClass('disabled').find('a').attr('href', 'javascript:search_next()');
+                    }
+
+                    if (data.total > 10) {
+                        pg.removeClass('hide');
+                    }
+                }
+            });
+        }
+
+        // 前一页
+        function search_prev() {
+            var page = $('#page').text();
+            load_forum_bbs(Number(page) - 1);
+        }
+
+        // 后一页
+        function search_next() {
+            var page = $('#page').text();
+            load_forum_bbs(Number(page) + 1);
+        }
+
+        // 打开发帖对话框
+        function open_send_bbs_dialog() {
+            $.ajax({
+                url: 'if/is-logged.php',
+                type: 'get',
+                dataType: 'json',
+                success: function(data) {
+                    if (!data.logged) {
+                        alert('登录后方可发帖');
+                    } else {
+                        var dialog = $('#send-bbs-dialog');
+                        dialog.find('input').val('');
+                        dialog.find('textarea').val('');
+                        dialog.modal('show');
+                    }
+                }
+            });
+        }
+
+        // 执行发帖
+        function send_bbs() {
+            var title = $('#sbd-title').val().trim();
+            if (title == '') {
+                alert('标题不能为空');
+                return;
+            }
+            var content = $('#sbd-content').val().trim();
+            if (content == '') {
+                alert('内容不能为空');
+                return;
+            }
+
+            if (confirm('是否发帖')) {
+                $.ajax({
+                    url: 'if/send-bbs.php',
+                    type: 'post',
+                    data: {
+                        title: title,
+                        content: content
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data.status == '发帖成功') {
+                            // 刷新帖子列表
+                            load_forum_bbs();
+                        }
+                        alert(data.status);
+                    }
+                });
+            }
+        }
+
+    </script>
+</body>
+
+</html>
