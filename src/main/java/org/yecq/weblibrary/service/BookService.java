@@ -29,13 +29,16 @@ public class BookService {
             param.add("%" + keyword + "%");
             param.add("%" + keyword + "%");
         }
+
         //分页
         int start = (page - 1) * rows;
         String limit = " limit ?,?";
+
         param.add(start);
         param.add(rows);
 
-        List<Map<String, Object>> list = this.jdbc.queryForList(sql + where + limit, param.toArray());
+        List<Map<String, Object>> list = this.jdbc.queryForList(sql + where + limit, param.toArray())
+                ;
         List<BookInfo> data = new LinkedList();
         for (Map<String, Object> item : list) {
             BookInfo b = new BookInfo();

@@ -1,6 +1,7 @@
 package org.yecq.weblibrary.controller;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,8 +37,8 @@ public class LogController {
     }
 
     @RequestMapping("if/login.php")
-    public LoginResult login(@RequestParam("username") String username, @RequestParam("passwd") String passwd, HttpSession session) {
-        return this.ls.login(username, passwd, session);
+    public LoginResult login(@RequestParam("username") String username, @RequestParam("passwd") String passwd, HttpSession session, HttpServletResponse response) {
+        return this.ls.login(username, passwd, session,response);
     }
 
     @RequestMapping("if/logout.php")
