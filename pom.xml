@@ -43,7 +43,7 @@
             <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
         
-        <!-- 开发便利工具，修改代码之后自动重启 -->
+        <!-- 开发便利工具，修改代码之后自动重启-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -60,6 +60,11 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aspects</artifactId>
         </dependency>
     </dependencies>
 

@@ -33,7 +33,8 @@ public class LogController {
 
     @RequestMapping(path = "if/regist.php",method = RequestMethod.POST)
     public Map regist(@RequestParam("username")String username,@RequestParam("passwd")String passwd,@RequestParam("name")String name,@RequestParam("cellphone")String cellphone){
-            return this.ls.regist(username,passwd,name,cellphone);
+        System.out.println("Juniors");
+        return this.ls.regist(username,passwd,name,cellphone);
     }
 
     @RequestMapping("if/login.php")
